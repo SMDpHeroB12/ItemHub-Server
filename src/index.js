@@ -40,19 +40,20 @@ app.get("/seed-items", async (req, res) => {
         name: "Dumbbell Set",
         description: "Adjustable dumbbell set for full-body workouts.",
         price: 79.99,
-        image: "https://i.ibb.co/3pZQkK3/dumbbell.jpg",
+        image: "https://i.ibb.co.com/BHcrMN6m/dumbbell-Set.png",
       },
+
       {
         name: "Yoga Mat",
         description: "Non-slip yoga mat for comfort and stability.",
         price: 19.99,
-        image: "https://i.ibb.co/5G2bY0j/yoga-mat.jpg",
+        image: "https://i.ibb.co.com/0yhx612N/yoga-mat-exercise-mat.png",
       },
       {
         name: "Resistance Bands",
         description: "Set of resistance bands for strength training.",
         price: 14.5,
-        image: "https://i.ibb.co/9r6yKq8/bands.jpg",
+        image: "https://i.ibb.co.com/LXJbW7Ft/colorful-resistance-bands.png",
       },
     ];
 
@@ -76,3 +77,8 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log("Server running on port", port);
 });
+
+// https://i.ibb.co.com/0yhx612N/yoga-mat-exercise-mat.png
+// https://i.ibb.co.com/TxCQdQ20/dumbbell-set-rack.png
+// https://i.ibb.co.com/BHcrMN6m/dumbbell-Set.png
+// https://i.ibb.co.com/LXJbW7Ft/colorful-resistance-bands.png
