@@ -84,4 +84,15 @@ async function createItem(req, res) {
   }
 }
 
-module.exports = { getItems, getItemById, createItem };
+// Additional function to get the count of items
+async function getItemsCount(req, res) {
+  try {
+    const db = await connectDB();
+    const count = await db.collection("items").countDocuments();
+    return res.json({ count });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to get items count" });
+  }
+}
+
+module.exports = { getItems, getItemById, createItem, getItemsCount };
