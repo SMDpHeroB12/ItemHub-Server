@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const { connectDB } = require("./config/db");
 const itemRoutes = require("./routes/item.routes");
+const uploadRoutes = require("./routes/upload.routes");
 
 // Initialize Express app
 const app = express();
@@ -29,6 +30,7 @@ app.get("/health", async (req, res) => {
 
 // Item routes
 app.use("/api/items", itemRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // Seed items endpoint
 app.get("/seed-items", async (req, res) => {

@@ -5,11 +5,14 @@ const { connectDB } = require("../config/db");
 async function getItems(req, res) {
   try {
     const db = await connectDB();
+
+    // ✅ Sort by createdAt for consistency (works even if _id is string)
     const items = await db
       .collection("items")
       .find()
-      .sort({ _id: -1 })
+      .sort({ createdAt: -1 })
       .toArray();
+
     res.json(items);
   } catch (err) {
     res
@@ -18,19 +21,24 @@ async function getItems(req, res) {
   }
 }
 
-// Get a single item by ID
+// Get a single item by ID (supports ObjectId OR string _id)
 async function getItemById(req, res) {
   try {
     const { id } = req.params;
 
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid item id" });
+    const db = await connectDB();
+
+    let item = null;
+
+    // ✅ If id is valid ObjectId, try ObjectId lookup
+    if (ObjectId.isValid(id)) {
+      item = await db.collection("items").findOne({ _id: new ObjectId(id) });
     }
 
-    const db = await connectDB();
-    const item = await db
-      .collection("items")
-      .findOne({ _id: new ObjectId(id) });
+    // ✅ If not found (or not ObjectId), try string lookup
+    if (!item) {
+      item = await db.collection("items").findOne({ _id: id });
+    }
 
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
@@ -44,12 +52,21 @@ async function getItemById(req, res) {
   }
 }
 
-// Additional function to create a new item
+// Create a new item (now supports extra fields)
 async function createItem(req, res) {
   try {
-    const { name, description, price, image } = req.body || {};
+    const {
+      name,
+      description,
+      price,
+      image,
+      images,
+      category,
+      subCategory,
+      tags,
+    } = req.body || {};
 
-    // Simple validation (no over-engineering)
+    // ✅ Required fields
     if (!name || !description || price === undefined || !image) {
       return res.status(400).json({
         message: "name, description, price, and image are required",
@@ -61,16 +78,28 @@ async function createItem(req, res) {
       return res.status(400).json({ message: "price must be a valid number" });
     }
 
-    const db = await connectDB();
+    // ✅ Normalize optional fields (simple, no over-engineering)
+    const safeImages = Array.isArray(images)
+      ? images.map((u) => String(u).trim()).filter(Boolean)
+      : [];
+
+    const safeTags = Array.isArray(tags)
+      ? tags.map((t) => String(t).trim()).filter(Boolean)
+      : [];
 
     const newItem = {
       name: String(name).trim(),
       description: String(description).trim(),
       price: numericPrice,
-      image: String(image).trim(),
+      image: String(image).trim(), // main thumbnail
+      images: safeImages, // optional gallery
+      category: category ? String(category).trim() : "",
+      subCategory: subCategory ? String(subCategory).trim() : "",
+      tags: safeTags,
       createdAt: new Date(),
     };
 
+    const db = await connectDB();
     const result = await db.collection("items").insertOne(newItem);
 
     res.status(201).json({
@@ -84,7 +113,7 @@ async function createItem(req, res) {
   }
 }
 
-// Additional function to get the count of items
+// Get the count of items
 async function getItemsCount(req, res) {
   try {
     const db = await connectDB();
